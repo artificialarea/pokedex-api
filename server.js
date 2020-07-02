@@ -2,13 +2,16 @@ require('dotenv').config()
 console.log(process.env.API_TOKEN)
 const express = require('express')
 const morgan = require('morgan')
+const helmet = require('helmet')
 const cors = require('cors')
 const POKEDEX = require('./pokedex.json')
 
 
 const app = express()
 
+// INSTALL MIDDLEWARE
 app.use(morgan('dev'))
+app.use(helmet()) // see: https://github.com/helmetjs/helmet#how-it-works
 app.use(cors())
 
 
@@ -60,7 +63,7 @@ app.get('/pokemon', function handleGetPokemon(req, res) {
     }
   } 
   
-  // queries valid, so...
+  // queries valid, so proceed...
 
   if(name) {
     response = response.filter(pokemon => 
