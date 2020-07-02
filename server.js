@@ -5,7 +5,6 @@ const morgan = require('morgan')
 const POKEDEX = require('./pokedex.json')
 
 
-
 const app = express()
 
 app.use(morgan('dev'))
@@ -32,16 +31,15 @@ app.use(function validateBearerToken(req, res, next) {
 const validTypes = [`Bug`, `Dark`, `Dragon`, `Electric`, `Fairy`, `Fighting`, `Fire`, `Flying`, `Ghost`, `Grass`, `Ground`, `Ice`, `Normal`, `Poison`, `Psychic`, `Rock`, `Steel`, `Water`]
 
 // GET /types //////////////////////////////////////
-function handleGetTypes(req, res) {
-  res.json(validTypes)
-}
-
-app.get('/types', handleGetTypes)
+app.get('/types', 
+  function handleGetTypes(req, res) {
+    res.json(validTypes)
+})
 
 
 // GET /pokemon ////////////////////////////////////
-function handleGetPokemon(req, res) {
-  let response = POKEDEX.pokemon
+app.get('/pokemon', function handleGetPokemon(req, res) {
+  let response = POKEDEX.pokemon 
   const { name = '', type } = req.query
 
   // VALIDATION
@@ -52,17 +50,15 @@ function handleGetPokemon(req, res) {
   } 
 
   if(type) {
-    const validTypesLowerCase = validTypes.map(t => t.toLowerCase())
     if(type.length === 0) {
       res.status(400).send("Type required")
     }
-    if(!validTypesLowerCase.includes(type.toLowerCase())) { 
+    if(!validTypes.map(t => t.toLowerCase()).includes(type.toLowerCase())) { 
       res.status(400).send(`Only these pokemon types are valid: ${validTypes.join(', ')}`)
     }
   } 
   
-  // query valid, so...
-
+  // queries valid, so...
 
   if(name) {
     response = response.filter(pokemon => 
@@ -70,23 +66,23 @@ function handleGetPokemon(req, res) {
         .name
         .toLowerCase()
         .includes(name.toLowerCase())
-    )   
-  }
-  
-  if(type) {
-    response = response.filter(pokemon => 
-        pokemon
-          .type
-          .includes(type)
     )
   }
 
+  if (type) {
+    response = response.filter(pokemon => {
+      return pokemon.type
+          .map(t => t.toLowerCase())
+          .includes(type.toLowerCase())
+    })
+  }
+
+  if (response.length === 0) {
+    response = "No results found."
+  }
 
   res.json(response)
-
-}
-
-app.get('/pokemon', handleGetPokemon)
+})
 
 
 // SERVER
