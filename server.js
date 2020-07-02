@@ -2,12 +2,14 @@ require('dotenv').config()
 console.log(process.env.API_TOKEN)
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 const POKEDEX = require('./pokedex.json')
 
 
 const app = express()
 
 app.use(morgan('dev'))
+app.use(cors())
 
 
 // VALIDATION MIDDLEWARE /////////////////////////////////
